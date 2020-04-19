@@ -1,10 +1,5 @@
-
-
-
 composer = require "composer"
 cenai = composer.newScene()
-
-
 
 
 function cenai:create(event)
