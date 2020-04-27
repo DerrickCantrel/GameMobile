@@ -146,35 +146,30 @@ function resumeToque(event)
     if (event.phase == "began" or event.phase == "moved") then
         print("eaeee")
         if event.target.myName == "Resume" then
-            composer.gotoScene("Game", "fade", 800)
+            print("olaaaaa")
+            endGame()
+            GameOver() --criar um restart
         end
     end
 end
 
 resume:addEventListener("touch", resumeToque)
 
+function GameOver()
+
+	composer.gotoScene("Resume","fade",800) 
+
+end
+
 -- função da tela repetindo
 function move()
     if(veiculo.isVisible) then
-            --mapa.y = mapa.y - speed;
         mapa.y = mapa.y + speed;
-        --mapacopy.y = mapacopy.y-speed;
         mapacopy.y = mapacopy.y + speed;
-        --print("mapa.y ="..mapa.y)
-        --print("mapacopy.y ="..mapacopy.y)
-        
-        --if (mapa.y + mapa.height/2 < 0) then
         if (mapa.y > 1280) then
-            --print("mapa.y = "..mapa.y.. " " .. "mapa.height/2=".. mapa.height/2)
-            --print("mapa.y: ".. mapa.y.. "mapa.height*3/2=".. mapa.height*3/2)
-            --mapa.y = mapa.height*3/2 + speed
                 mapa.y = (-940) + speed
-            --print("new value mapa:" .. mapa.y)
         elseif (mapacopy.y > 1280) then
-            --print("mapacopy.y = "..mapacopy.y.. " " .. "mapa.height/2=".. mapa.height/2)
-            --mapacopy.y = mapacopy.height*3/2 - speed
             mapacopy.y = (-945) + speed
-            --print("new value mapacopy:" .. mapacopy.y) 
         end
     end
 end
@@ -183,13 +178,9 @@ end
 function VelAumenta()  
     
     
-    if(Score > 5000 and Score < 10000)then
+    if(Score > 20000)then
     
 		  speed = 10
-      
-      elseif(Score > 10000)then
-      
-		  speed = 15
       
     end
 
@@ -229,6 +220,25 @@ end
 
 end
 
+function endGame()
+    Runtime:removeEventListener("enterFrame", update)
+    Runtime:removeEventListener("enterFrame", Contador_func)
+    Runtime:removeEventListener("enterFrame", VelAumenta)
+    Runtime:removeEventListener( "enterFrame", move )
+    Runtime:removeEventListener("enterFrame", Contador_func)
+    speed = 0
+    Score = 0
+
+    veiculo.isVisible = false
+    --display.remove(veiculo)
+    display.remove(botao[1])
+    display.remove(botao[2])
+    display.remove(botao[3])
+    display.remove(botao[4])
+    display.remove(scor)
+    display.remove(pontos) -- n resolve, pontos em 2 instancia
+end
+
 -- COLIDOU COM LATERAIS
 function onCollisionLaterais(event)
     if (event.phase == "began") then
@@ -239,15 +249,25 @@ function onCollisionLaterais(event)
             Runtime:removeEventListener("enterFrame", Contador_func)
             Runtime:removeEventListener("enterFrame", VelAumenta)
             Runtime:removeEventListener( "enterFrame", move )
+            
+            for j=1, 4, 1 do
+                botao[j]:removeEventListener( "touch", funcaoToque )
+            end
+            
             speed = 0
             Score = 0
 
-            veiculo.isVisible = false
-            display.remove(veiculo)
-            display.remove(botao[1])
-            display.remove(botao[2])
-            display.remove(botao[3])
-            display.remove(botao[4])
+            --veiculo.isVisible = false
+            --display.remove(veiculo)
+
+            --Remove o objeto de exibição e libera sua memória
+            veiculo:removeSelf()
+  
+            for j=1, 4, 1 do
+                botao[j]:removeSelf()
+            end
+
+            timer.performWithDelay(2000,GameOver,1) 
         end
     end 
 end
