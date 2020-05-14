@@ -41,7 +41,8 @@ function GameI()
 
     customData = { var1 = anim, myVar= p }
     cenai = composer.loadScene( "Game", false, customData )
-    composer.gotoScene("Game","fade",95) 
+
+    composer.gotoScene("Game","fade",800) 
 
 end
 
