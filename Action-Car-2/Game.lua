@@ -13,6 +13,8 @@ cenai = composer.newScene()
 Score = 0
 speed = 5
 botao = {}
+moveX = 0
+moveY = 0
 
 -- CRIANDO A CENA
 function cenai:create(event)
@@ -126,39 +128,15 @@ function cenai:create(event)
     botao[4].myName = "direita"
 
     grupoCena:insert(botao[4])
+end
 
-    local moveX = 0
-    local moveY = 0
-
-    function update()
-        veiculo.x = veiculo.x + moveX
-        veiculo.y = veiculo.y + moveY
-    end
-
--- FUNÇÕES DO GAME
+-- ======================================================================
+--                      FUNÇÕES DO GAME
+-- ======================================================================
+-- Atualizando os movimentos dos veiculo
 function Contador_func()
-
     Score = Score + 1
     pontos.text = Score
-end
-
-function resumeToque(event) 
-    if (event.phase == "began" or event.phase == "moved") then
-        print("eaeee")
-        if event.target.myName == "Resume" then
-            print("olaaaaa")
-            endGame()
-            GameOver() --criar um restart
-        end
-    end
-end
-
-resume:addEventListener("touch", resumeToque)
-
-function GameOver()
-
-	composer.gotoScene("Resume","fade",800) 
-
 end
 
 -- função da tela repetindo
@@ -180,7 +158,7 @@ function VelAumenta()
     
     if(Score > 20000)then
     
-		  speed = 10
+		  speed = 7
       
     end
 
@@ -212,11 +190,30 @@ function funcaoToque(e)
     end
 end
 
-local j=1
+botao[1]:addEventListener( "touch", funcaoToque )
+botao[2]:addEventListener( "touch", funcaoToque )
+botao[3]:addEventListener( "touch", funcaoToque )
+botao[4]:addEventListener( "touch", funcaoToque )
 
-for j=1, 4, 1 do
-    botao[j]:addEventListener( "touch", funcaoToque )
+function update()
+    veiculo.x = veiculo.x + moveX
+    veiculo.y = veiculo.y + moveY
 end
+
+function resumeToque(event) 
+    if (event.phase == "began" or event.phase == "moved") then
+        print("eaeee")
+        if event.target.myName == "Resume" then
+            print("olaaaaa")
+            endGame()
+            GameOver() --criar um restart
+        end
+    end
+end
+
+function GameOver()
+
+	composer.gotoScene("Resume","fade",800) 
 
 end
 
@@ -239,7 +236,7 @@ function endGame()
     display.remove(pontos) -- n resolve, pontos em 2 instancia
 end
 
--- COLIDOU COM LATERAIS
+-- COLIDIU COM LATERAIS
 function onCollisionLaterais(event)
     if (event.phase == "began") then
         if (event.object1.myName == "limiteEsquerdo" and event.object2.myName == "Veiculo" 
@@ -247,6 +244,8 @@ function onCollisionLaterais(event)
             
             Runtime:removeEventListener("enterFrame", update)
             Runtime:removeEventListener("enterFrame", Contador_func)
+            speed = 5
+            Score = 0
             Runtime:removeEventListener("enterFrame", VelAumenta)
             Runtime:removeEventListener( "enterFrame", move )
             
@@ -254,14 +253,13 @@ function onCollisionLaterais(event)
                 botao[j]:removeEventListener( "touch", funcaoToque )
             end
             
-            speed = 0
-            Score = 0
 
             --veiculo.isVisible = false
             --display.remove(veiculo)
 
             --Remove o objeto de exibição e libera sua memória
             veiculo:removeSelf()
+            Score:removeSelf() -- TESTE
   
             for j=1, 4, 1 do
                 botao[j]:removeSelf()
@@ -279,6 +277,7 @@ function cenai:show(event)
     Runtime:addEventListener("enterFrame", VelAumenta)
     Runtime:addEventListener( "enterFrame", move )
     Runtime:addEventListener("collision", onCollisionLaterais)
+    Runtime:addEventListener("enterFrame", resumeToque)
 
 end
 
