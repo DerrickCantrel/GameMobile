@@ -7,7 +7,7 @@ function cenar:create(event)
 
     local grupoR = self.view
 
-    backFade = display.newImageRect("imgs/gamer over 1.png",display.contentWidth/2,display.contentHeight/2)
+    backFade = display.newImageRect("imgs/gamerover1.png",display.contentWidth/2,display.contentHeight/2)
     backFade.x = display.contentWidth/2
     backFade.y = display.contentHeight/2
 
@@ -27,20 +27,20 @@ function cenar:create(event)
     Texto = display.newText(scoreShow,display.contentWidth/3.8,display.contentHeight/3,"Arial",40)    
 	Texto:setFillColor(0,0,0)
     grupoR:insert(Texto)
-
-
-    function Toque(event)
-                    
-      composer.gotoScene("Game")
-      
-    end
   
 end
+
+function Toque(event)
+    if event.phase == "began" then             
+        composer.gotoScene("Game")
+    end
+    
+end
+
 
 function cenar:show(event)
 
 composer.removeHidden() 
-
 Runtime:addEventListener("touch",Toque)
 
 
