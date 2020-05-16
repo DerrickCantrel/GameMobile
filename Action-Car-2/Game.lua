@@ -15,6 +15,7 @@ speed = 5
 botao = {}
 moveX = 0
 moveY = 0
+life = 3
 
 -- CRIANDO A CENA
 function cenai:create(event)
@@ -47,7 +48,29 @@ function cenai:create(event)
     resume.myName="Resume"
 
     grupoCena:insert(resume)
-    
+
+    -- status vida
+    vida3 = display.newImageRect("imgs/life_3.png", 100, 50)
+    vida3.x = display.contentWidth/2 - 220
+    vida3.y = 30
+    vida3.isVisible = true
+
+    grupoCena:insert(vida3)
+
+    vida2 = display.newImageRect("imgs/life_1.png", 100, 50)
+    vida2.x = display.contentWidth/2 - 220
+    vida2.y = 30
+    vida2.isVisible = false
+
+    grupoCena:insert(vida2)
+
+    vida1 = display.newImageRect("imgs/life_1.png", 100, 50)
+    vida1.x = display.contentWidth/2 - 220
+    vida1.y = 30
+    vida1.isVisible = false
+
+    grupoCena:insert(vida1)
+
     -- Score + pontos
     scor = display.newText("Score : ",display.contentWidth / 20, 20, native.systemFont, 30)
     scor:setFillColor(0,0,0)
@@ -55,7 +78,7 @@ function cenai:create(event)
     grupoCena:insert(scor)
 
     pontos = display.newText( Score, 120, 20, native.systemFont, 30 )
-    pontos:setFillColor(0,0,255)
+    pontos:setFillColor(1,1,1)
 
     -- Limites da via (onCollide)
     limiteLateral1 = display.newRect(100, 160, 20, 320)
@@ -97,35 +120,46 @@ function cenai:create(event)
     grupoCena:insert(veiculo)
 
     -- BOTÕES QUE CONTROLAM A MOTO
-    botao[1] = display.newImageRect("imgs/botao.png", 50, 50 ) --cima
+    back_botao = display.newImageRect("imgs/bk_controle.png", 700, 500)
+    back_botao.x = 48
+    back_botao.y = 268
+    back_botao:setFillColor(1,1,1)
+
+    grupoCena:insert(back_botao)
+
+    botao[1] = display.newImageRect("imgs/botao.png", 40, 40 ) --cima
     botao[1].x = 40
-    botao[1].y = 210
+    botao[1].y = 215
     botao[1].rotation = -90
     botao[1].myName = "cima"
+    botao[1]:setFillColor( 1, 1, 1)
 
     grupoCena:insert(botao[1])
 
-    botao[2] = display.newImageRect("imgs/botao.png", 50, 50 ) --baixo
+    botao[2] = display.newImageRect("imgs/botao.png", 40, 40 ) --baixo
     botao[2].x = 45
-    botao[2].y = 290
+    botao[2].y = 282
     botao[2].rotation = 90
     botao[2].myName = "baixo"
+    botao[2]:setFillColor( 1, 1, 1)
 
     grupoCena:insert(botao[2])
 
-    botao[3] = display.newImageRect("imgs/botao.png", 50, 50 ) --esquerda
-    botao[3].x = 0
+    botao[3] = display.newImageRect("imgs/botao.png", 40, 40 ) --esquerda
+    botao[3].x = 8
     botao[3].y = 250
     botao[3].rotation = -180
     botao[3].myName = "esquerda"
+    botao[3]:setFillColor( 1, 1, 1)
 
     grupoCena:insert(botao[3])
 
-    botao[4] = display.newImageRect("imgs/botao.png", 50, 50 ) --direita
-    botao[4].x = 85
-    botao[4].y = 245
+    botao[4] = display.newImageRect("imgs/botao.png", 40, 40 ) --direita
+    botao[4].x = 76
+    botao[4].y = 246
     botao[4].rotation = 0
     botao[4].myName = "direita"
+    botao[4]:setFillColor( 1, 1, 1)
 
     grupoCena:insert(botao[4])
 end
@@ -133,6 +167,50 @@ end
 -- ======================================================================
 --                      FUNÇÕES DO GAME
 -- ======================================================================
+function statusVida(event)
+    if (event.phase == "began") then
+        if (event.object1.myName == "limiteEsquerdo" and event.object2.myName == "Veiculo" 
+            or event.object1.myName == "limiteDireito" and event.object2.myName == "Veiculo") then                
+                
+                life = life - 1
+                print("life = " .. life)
+        
+            if (life == 2) then
+                vida3.isVisible = false
+                vida3:removeSelf()
+                vida2.isVisible = true
+
+            elseif (life == 1) then
+                vida2.isVisible = false
+                vida2:removeSelf()
+                vida1.isVisible = true
+            end
+        else
+            Runtime:removeEventListener("touch", escutaButton)
+            Runtime:removeEventListener("enterFrame", update)
+            Runtime:removeEventListener("enterFrame", Contador_func)
+            Runtime:removeEventListener("enterFrame", VelAumenta)
+            Runtime:removeEventListener( "enterFrame", move )
+            Runtime:removeEventListener("collision", statusVida)
+            speed = 5
+            Score = 0
+    
+            --veiculo.isVisible = false
+            --display.remove(veiculo)
+    
+            --Remove o objeto de exibição e libera sua memória
+            veiculo:removeSelf()
+            scor.isVisible = false -- TESTE
+    
+            --for j=1, 4, 1 do
+                --botao[j]:removeSelf()
+            --end
+    
+            timer.performWithDelay(2000,GameOver,1)
+        end
+    end
+end
+
 -- Atualizando os movimentos dos veiculo
 function Contador_func()
     Score = Score + 1
@@ -141,7 +219,6 @@ end
 
 -- função da tela repetindo
 function move()
-    if(veiculo.isVisible) then
         mapa.y = mapa.y + speed;
         mapacopy.y = mapacopy.y + speed;
         if (mapa.y > 1280) then
@@ -149,19 +226,13 @@ function move()
         elseif (mapacopy.y > 1280) then
             mapacopy.y = (-945) + speed
         end
-    end
 end
 
 -- Aumentando dificuldade (VELOCIDADE)
 function VelAumenta()  
-    
-    
     if(Score > 20000)then
-    
 		  speed = 7
-      
     end
-
 end
 
 -- Escuta os botoes
@@ -190,17 +261,21 @@ function funcaoToque(e)
     end
 end
 
-botao[1]:addEventListener( "touch", funcaoToque )
-botao[2]:addEventListener( "touch", funcaoToque )
-botao[3]:addEventListener( "touch", funcaoToque )
-botao[4]:addEventListener( "touch", funcaoToque )
-
-function update()
-    veiculo.x = veiculo.x + moveX
-    veiculo.y = veiculo.y + moveY
+function escutaButton()
+    botao[1]:addEventListener("touch", funcaoToque)
+    botao[2]:addEventListener("touch", funcaoToque)
+    botao[3]:addEventListener("touch", funcaoToque)
+    botao[4]:addEventListener("touch", funcaoToque)
 end
 
-function resumeToque(event) 
+function update()
+    if (veiculo.x ~= nil and veiculo.y ~= nil) then
+        veiculo.x = veiculo.x + moveX
+        veiculo.y = veiculo.y + moveY
+    end
+end
+
+function resumeButton(event) 
     if (event.phase == "began" or event.phase == "moved") then
         print("eaeee")
         if event.target.myName == "Resume" then
@@ -212,83 +287,78 @@ function resumeToque(event)
 end
 
 function GameOver()
-
 	composer.gotoScene("Resume","fade",800) 
-
 end
 
 function endGame()
     Runtime:removeEventListener("enterFrame", update)
+    Runtime:removeEventListener("touch", escutaButton)
     Runtime:removeEventListener("enterFrame", Contador_func)
     Runtime:removeEventListener("enterFrame", VelAumenta)
     Runtime:removeEventListener( "enterFrame", move )
     Runtime:removeEventListener("enterFrame", Contador_func)
-    speed = 0
+    speed = 5
     Score = 0
 
     veiculo.isVisible = false
     --display.remove(veiculo)
-    display.remove(botao[1])
-    display.remove(botao[2])
-    display.remove(botao[3])
-    display.remove(botao[4])
+    --display.remove(botao[1])
+    --display.remove(botao[2])
+    --display.remove(botao[3])
+    --display.remove(botao[4])
     display.remove(scor)
     display.remove(pontos) -- n resolve, pontos em 2 instancia
 end
 
 -- COLIDIU COM LATERAIS
-function onCollisionLaterais(event)
-    if (event.phase == "began") then
-        if (event.object1.myName == "limiteEsquerdo" and event.object2.myName == "Veiculo" 
-            or event.object1.myName == "limiteDireito" and event.object2.myName == "Veiculo") then
-            
-            Runtime:removeEventListener("enterFrame", update)
-            Runtime:removeEventListener("enterFrame", Contador_func)
-            speed = 5
-            Score = 0
-            Runtime:removeEventListener("enterFrame", VelAumenta)
-            Runtime:removeEventListener( "enterFrame", move )
-            
-            for j=1, 4, 1 do
-                botao[j]:removeEventListener( "touch", funcaoToque )
-            end
-            
+function onCollisionLaterais()
+    if (life ==0 ) then
+        Runtime:removeEventListener("touch", escutaButton)
+        Runtime:removeEventListener("enterFrame", update)
+        Runtime:removeEventListener("enterFrame", Contador_func)
+        speed = 5
+        Score = 0
+        Runtime:removeEventListener("enterFrame", VelAumenta)
+        Runtime:removeEventListener( "enterFrame", move )
+        Runtime:removeEventListener("collision", statusVida)
+        
 
-            --veiculo.isVisible = false
-            --display.remove(veiculo)
+        --veiculo.isVisible = false
+        --display.remove(veiculo)
 
-            --Remove o objeto de exibição e libera sua memória
-            veiculo:removeSelf()
-            Score:removeSelf() -- TESTE
-  
-            for j=1, 4, 1 do
-                botao[j]:removeSelf()
-            end
+        --Remove o objeto de exibição e libera sua memória
+        veiculo:removeSelf()
+        scor.isVisible = false -- TESTE
 
-            timer.performWithDelay(2000,GameOver,1) 
-        end
-    end 
+        --for j=1, 4, 1 do
+            --botao[j]:removeSelf()
+        --end
+
+        timer.performWithDelay(2000,GameOver,1) 
+    end
 end
 
 function cenai:show(event)
-
+    Runtime:addEventListener("touch", escutaButton)
     Runtime:addEventListener("enterFrame", update)
     Runtime:addEventListener("enterFrame", Contador_func)
     Runtime:addEventListener("enterFrame", VelAumenta)
     Runtime:addEventListener( "enterFrame", move )
-    Runtime:addEventListener("collision", onCollisionLaterais)
-    Runtime:addEventListener("enterFrame", resumeToque)
+    --Runtime:addEventListener("collision", onCollisionLaterais)
+    Runtime:addEventListener("enterFrame", resumeButton)
+    Runtime:addEventListener("collision", statusVida)
 
 end
 
 function cenai:hide(event)
-
+    Runtime:removeEventListener("touch", escutaButton)
     Runtime:removeEventListener("enterFrame", update)
     Runtime:removeEventListener("enterFrame", Contador_func)
     Runtime:removeEventListener("enterFrame", VelAumenta)
     Runtime:removeEventListener( "enterFrame", move )
-    Runtime:removeEventListener("collision", onCollisionLaterais)
-    Runtime:removeEventListener("enterFrame", resumeToque)
+    --Runtime:removeEventListener("collision", onCollisionLaterais)
+    Runtime:removeEventListener("enterFrame", resumeButton)
+    Runtime:removeEventListener("collision", statusVida)
   
 end
 
