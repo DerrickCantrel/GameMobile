@@ -7,15 +7,16 @@ function cenar:create(event)
 
     local grupoR = self.view
 
-    backFade = display.newImageRect("imgs/gamerover1.png",display.contentWidth/2,display.contentHeight/2)
+    backFade = display.newImageRect("imgs/gamerover1.png",800,480)
     backFade.x = display.contentWidth/2
     backFade.y = display.contentHeight/2
 
     grupoR:insert(backFade)
 
-    tenteNovamente = display.newImageRect("imgs/gamer over 2.png",display.contentWidth/2,display.contentHeight/2)
+    tenteNovamente = display.newImageRect("imgs/gamer over 2.png",200,50)
     tenteNovamente.x = display.contentWidth/2
     tenteNovamente.y = display.contentHeight/2
+    tenteNovamente.myName = "Novamente"
 
     grupoR:insert(tenteNovamente)
 
@@ -30,27 +31,24 @@ function cenar:create(event)
   
 end
 
-function Toque(event)
-    if event.phase == "began" then             
-        composer.gotoScene("Game")
+function tentarNovamente(event)
+    if event.phase == "began" then
+        if event.target.myName == "Novamente" then
+            composer.gotoScene("Game", 800)
+        end
     end
-    
 end
-
 
 function cenar:show(event)
 
-composer.removeHidden() 
-Runtime:addEventListener("touch",Toque)
-
-
---Runtime:addEventListener("enterFrame",Show)
+composer.removeScene( "Game", true )
+Runtime:addEventListener("touch",tentarNovamente)
     
 end
     
 function cenar:hide(event)
     
-Runtime:removeEventListener("touch",Toque)
+Runtime:removeEventListener("touch",tentarNovamente)
         
 end
     
