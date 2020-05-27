@@ -25,9 +25,9 @@ function cenar:create(event)
 	
     grupoR:insert(Titulo)
     
-    Texto = display.newText(scoreShow,display.contentWidth/3.8,display.contentHeight/3,"Arial",40)    
-	Texto:setFillColor(0,0,0)
-    grupoR:insert(Texto)
+    --Texto = display.newText(scoreShow,display.contentWidth/3.8,display.contentHeight/3,"Arial",40)    
+	--Texto:setFillColor(0,0,0)
+    --grupoR:insert(Texto)
   
 end
 
