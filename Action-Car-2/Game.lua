@@ -16,6 +16,7 @@ botao = {}
 moveX = 0
 moveY = 0
 life = 3
+Vel = 7
 
 -- CRIANDO A CENA
 function cenai:create(event)
@@ -110,6 +111,15 @@ function cenai:create(event)
 
     grupoCena:insert(limiteHorizontal2)
 
+    -- INIMIGOS
+    tank1 = display.newImageRect("imgs/tank01.png", 75, 60)
+    tank1.myName = "tanklvl1"
+    tank1.x = 400
+    tank1.y = 260
+    physics.addBody(tank1, "kinematic", {density = 0.1, radius = 40})
+
+    grupoCena:insert(tank1)
+
     veiculo = display.newImageRect("imgs/Motocicleta.png", 40, 90 )
     veiculo.x = display.contentCenterX
     veiculo.y = display.contentCenterY
@@ -167,46 +177,12 @@ end
 -- ======================================================================
 --                      FUNÇÕES DO GAME
 -- ======================================================================
-function statusVida(event)
-    if (event.phase == "began") then
-        if (event.object1.myName == "limiteEsquerdo" and event.object2.myName == "Veiculo" 
-            or event.object1.myName == "limiteDireito" and event.object2.myName == "Veiculo") then                
-                
-                life = life - 1
-                print("life = " .. life)
-        
-            if (life == 2) then
-                vida3.isVisible = false
-                vida3:removeSelf()
-                vida2.isVisible = true
-
-            elseif (life == 1) then
-                vida2.isVisible = false
-                vida2:removeSelf()
-                vida1.isVisible = true
-            end
-        else
-            Runtime:removeEventListener("touch", escutaButton)
-            Runtime:removeEventListener("enterFrame", update)
-            Runtime:removeEventListener("enterFrame", Contador_func)
-            Runtime:removeEventListener("enterFrame", VelAumenta)
-            Runtime:removeEventListener( "enterFrame", move )
-            Runtime:removeEventListener("collision", statusVida)
-            speed = 5
-            Score = 0
-    
-            --veiculo.isVisible = false
-            --display.remove(veiculo)
-    
-            --Remove o objeto de exibição e libera sua memória
-            veiculo:removeSelf()
-            scor.isVisible = false -- TESTE
-    
-            --for j=1, 4, 1 do
-                --botao[j]:removeSelf()
-            --end
-    
-            timer.performWithDelay(2000,GameOver,1)
+function inimigos()
+    if (Score >= 1000) then
+        if (tank1.y <= - 200) then
+            tank1.y = math.random(1200, 5000)
+            else
+            tank1.y = tank1.y - Vel
         end
     end
 end
@@ -231,7 +207,9 @@ end
 -- Aumentando dificuldade (VELOCIDADE)
 function VelAumenta()  
     if(Score > 20000)then
-		  speed = 7
+          speed = 7
+          
+          Vel = 14
     end
 end
 
@@ -311,42 +289,46 @@ function endGame()
 end
 
 -- COLIDIU COM LATERAIS
-function onCollisionLaterais()
-    if (life ==0 ) then
-        Runtime:removeEventListener("touch", escutaButton)
-        Runtime:removeEventListener("enterFrame", update)
-        Runtime:removeEventListener("enterFrame", Contador_func)
-        speed = 5
-        Score = 0
-        Runtime:removeEventListener("enterFrame", VelAumenta)
-        Runtime:removeEventListener( "enterFrame", move )
-        Runtime:removeEventListener("collision", statusVida)
-        
+function onCollisionLaterais(event)
+    if (event.phase == "began") then
+        if (event.object1.myName == "limiteEsquerdo" and event.object2.myName == "Veiculo" 
+            or event.object1.myName == "limiteDireito" and event.object2.myName == "Veiculo") then 
 
-        --veiculo.isVisible = false
-        --display.remove(veiculo)
+            print("funcionaaaaaaaaaaaaaaaaaaaa")
+            Runtime:removeEventListener("touch", escutaButton)
+            Runtime:removeEventListener("enterFrame", update)
+            Runtime:removeEventListener("enterFrame", Contador_func)
+            speed = 5
+            Score = 0
+            Runtime:removeEventListener("enterFrame", VelAumenta)
+            Runtime:removeEventListener( "enterFrame", move )
+            
 
-        --Remove o objeto de exibição e libera sua memória
-        veiculo:removeSelf()
-        scor.isVisible = false -- TESTE
+            --veiculo.isVisible = false
+            --display.remove(veiculo)
 
-        --for j=1, 4, 1 do
-            --botao[j]:removeSelf()
-        --end
+            --Remove o objeto de exibição e libera sua memória
+            veiculo:removeSelf()
+            scor.isVisible = false -- TESTE
 
-        timer.performWithDelay(2000,GameOver,1) 
+            --for j=1, 4, 1 do
+                --botao[j]:removeSelf()
+            --end
+
+            timer.performWithDelay(2000,GameOver,1) 
+        end
     end
 end
 
 function cenai:show(event)
     Runtime:addEventListener("touch", escutaButton)
     Runtime:addEventListener("enterFrame", update)
+    Runtime:addEventListener("enterFrame", inimigos)
     Runtime:addEventListener("enterFrame", Contador_func)
     Runtime:addEventListener("enterFrame", VelAumenta)
     Runtime:addEventListener( "enterFrame", move )
-    --Runtime:addEventListener("collision", onCollisionLaterais)
+    Runtime:addEventListener("collision", onCollisionLaterais)
     Runtime:addEventListener("enterFrame", resumeButton)
-    Runtime:addEventListener("collision", statusVida)
 
 end
 
@@ -356,9 +338,8 @@ function cenai:hide(event)
     Runtime:removeEventListener("enterFrame", Contador_func)
     Runtime:removeEventListener("enterFrame", VelAumenta)
     Runtime:removeEventListener( "enterFrame", move )
-    --Runtime:removeEventListener("collision", onCollisionLaterais)
+    Runtime:removeEventListener("collision", onCollisionLaterais)
     Runtime:removeEventListener("enterFrame", resumeButton)
-    Runtime:removeEventListener("collision", statusVida)
   
 end
 
