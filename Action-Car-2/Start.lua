@@ -6,70 +6,65 @@ function cenai:create(event)
 
     local grupoI = self.view
     
-    Imagem = display.newImageRect("imgs/inicio.jpg",display.contentWidth*1.19,display.contentHeight)
-    Imagem.x = display.contentWidth/2
-	Imagem.y = display.contentHeight/2
+    background = display.newImage("imgs/inicio.jpg")
+    background.x = display.contentWidth/2
+    background.y = display.contentHeight/2
+    background:scale(0.7, 0.7)
 	
-	grupoI:insert(Imagem)
-
-    texto = display.newText("Toque para Iniciar",display.contentWidth/2,display.contentHeight/1.09)
-	texto:setFillColor(0,0,0)
-	
-    grupoI:insert(texto)
+    grupoI:insert(background)
     
-    contagem = 0
-    
+    sheetOptions =
+    {
+        width = 334,
+        height = 170,
+        numFrames = 2
+    }
+
+    titulo_sheet = graphics.newImageSheet("imgs/titulo_spri.png", sheetOptions)
+
+    sequences_titulos = {
+        -- consecutive frames sequence
+        {
+            name = "normalRun",
+            start = 1,
+            count = 2,
+            time = 800,
+            loopCount = 0,
+            loopDirection = "forward"
+        }
+    }
+
+    titulo_Spri = display.newSprite( titulo_sheet, sequences_titulos )
+    titulo_Spri.x = 100
+    titulo_Spri.y = 70
+    titulo_Spri:scale(0.8, 0.8)
+    titulo_Spri:play()
+
+    grupoI:insert(titulo_Spri)
+
+    buttomStart = display.newImage("imgs/inicio.png")
+    buttomStart.x = display.contentWidth/2; buttomStart.y = display.contentHeight/2
+    buttomStart:scale(0.6, 0.6)
+
+    grupoI:insert(buttomStart)
 end
 
-function Tempo()
-
-	if(contagem >= 50)then
-		
-		transition.fadeOut(Imagem,{time = 800})
-		contagem = 100
-		else
-		contagem = contagem + .5
-	end
-	
-	print(contagem)
-
-end
-
-display.setDefault( "background", 1, 1, 1 )
-
-function GameI()
-
-    customData = { var1 = anim, myVar= p }
-    cenai = composer.loadScene( "Game", false, customData )
-
-    composer.gotoScene("Game","fade",800) 
-
-end
-
-function Touch(event)
+function start(event)
 
     if(event.phase=="began") then
-        
-        timer.performWithDelay(1000,GameI,1)    
-        Runtime:removeEventListener("touch",Touch)
+        composer.gotoScene("Game", "fade", 400)
     end
-
-    
 end
-
 
 function cenai:show(event)
 
-Runtime:addEventListener("enterFrame",Tempo)
-Runtime:addEventListener("touch",Touch)
-    
-    
+    buttomStart:addEventListener("touch", start)
+        
 end
     
 function cenai:hide(event)
     
-Runtime:removeEventListener("enterFrame",Tempo)
-Runtime:removeEventListener("touch",Touch)
+    buttomStart:removeEventListener("touch", start)
     
 end
     
