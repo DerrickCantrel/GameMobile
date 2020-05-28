@@ -1,5 +1,5 @@
-composer = require( "composer" )
-cenar = composer.newScene()
+local composer = require( "composer" )
+local cenar = composer.newScene()
 
 scoreShow = 0 
 
@@ -7,11 +7,11 @@ function cenar:create(event)
 
     local grupoR = self.view
 
-    backFade = display.newImageRect("imgs/gamerover1.png",800,480)
-    backFade.x = display.contentWidth/2
-    backFade.y = display.contentHeight/2
+    background = display.newImageRect("imgs/fim.jpg",800,480)
+    background.x = display.contentWidth/2
+    background.y = display.contentHeight/2
 
-    grupoR:insert(backFade)
+    grupoR:insert(background)
 
     tenteNovamente = display.newImageRect("imgs/gamer over 2.png",200,50)
     tenteNovamente.x = display.contentWidth/2
@@ -31,11 +31,15 @@ function cenar:create(event)
   
 end
 
+function novamente()
+
+    composer.gotoScene("Game", 800)
+end
+
 function tentarNovamente(event)
-    if event.phase == "began" then
-        if event.target.myName == "Novamente" then
-            composer.gotoScene("Game", 800)
-        end
+    if ( "ended" == event.phase ) then
+      
+            
     end
 end
 
