@@ -18,7 +18,8 @@ function cenar:create(event)
 
     grupoR:insert(tenteNovamente)
 
-    --sound
+    soundGO = audio.loadStream("sounds/Action Fighter -02- Game Over.wav")
+    audio.setVolume(.1)
 end
 
 function restart(event)
@@ -31,12 +32,14 @@ function cenar:show(event)
 
     composer.removeHidden()
     tenteNovamente:addEventListener("touch", restart)
+    audio.play( soundGO, { channel=1, loops=-1 } )
     
 end
     
 function cenar:hide(event)
     
     tenteNovamente:removeEventListener("touch", restart)
+    audio.stop()
         
 end
     
