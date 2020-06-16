@@ -15,8 +15,8 @@ function cenai:create(event)
     
     sheetOptions =
     {
-        width = 334,
-        height = 170,
+        width = 400,
+        height = 200,
         numFrames = 2
     }
 
@@ -35,8 +35,8 @@ function cenai:create(event)
     }
 
     titulo_Spri = display.newSprite( titulo_sheet, sequences_titulos )
-    titulo_Spri.x = 100
-    titulo_Spri.y = 70
+    titulo_Spri.x = 120
+    titulo_Spri.y = 80
     titulo_Spri:scale(0.8, 0.8)
     titulo_Spri:play()
 
@@ -47,6 +47,9 @@ function cenai:create(event)
     buttomStart:scale(0.6, 0.6)
 
     grupoI:insert(buttomStart)
+
+    musicBack = audio.loadStream("sounds/Timecop1983 - On the Run.wav")
+    audio.setVolume(.2)
 end
 
 function start(event)
@@ -59,17 +62,20 @@ end
 function cenai:show(event)
 
     buttomStart:addEventListener("touch", start)
+    audio.play( musicBack, { channel=1, loops=-1 } )
         
 end
     
 function cenai:hide(event)
     
     buttomStart:removeEventListener("touch", start)
-    
+    audio.stop()
+
 end
     
 function cenai:destroy(event)
-    
+    --local sceneGroup = self.view
+    --audio.dispose( musicBack )
 end
     
 cenai:addEventListener("create",cenai)
