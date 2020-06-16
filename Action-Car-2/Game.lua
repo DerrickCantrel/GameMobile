@@ -1,65 +1,120 @@
 local physics = require("physics")
       physics.start()
       physics.setGravity( 0, 0 )
-      physics.setDrawMode( "hybrid" )
+      --physics.setDrawMode( "hybrid" )
       system.activate( "multitouch" )
 
-      local sheetOptions =
-{
-    frames =
-    {
-        {   -- 1) tank 1
-            x = 0,
-            y = 0,
-            width = 330,
-            height = 253
-        },
-        {   -- 2) tank 2
-            x = 0,
-            y = 85,
-            width = 330,
-            height = 253
-        },
-        {   -- 3) tank 3
-            x = 0,
-            y = 168,
-            width = 330,
-            height = 253
-        },
-    },
-}
-local objectSheet = graphics.newImageSheet( "imgs/enemys-spri.png", sheetOptions )
 
 -- Requirements
 composer = require( "composer" )
 cenai = composer.newScene()
 
 -- VARIAVEIS
-local score = 0
 local Score = 0
 local speed = 5
+
 local botao = {}
 local moveX = 0
 local moveY = 0
-local Vel = 7
+
 local died = false
-local lives = 1
-local tank1
+local lives = 3
+
 local _W = display.contentWidth
 local _H = display.contentHeight
 local scrollSpeed = 2
+
 local mapa1
 local mapa2
 local mapa3
-local live3
+
+local function calcSpeed(x1,y1,x2,y2)
+    if (level==1) then
+        fac = 14
+    else
+        fac = 7
+    end
+    local dis = math.sqrt(((x1-x2)^2)+((y1-y2)^2))
+    local speed = fac*dis
+    return speed
+end
+
+function newEnemy(x, y, speed)
+    inimigos = inimigos + 1
+    local  enemy = display.newImageRect("imgs/tank02.png", 149, 165)
+    enemy:scale(0.4, 0.4)
+    physics.addBody(enemy, {bounce=0, density=0, radius=(enemy.height*0.4)/2})
+    enemy.gravityScale = 0
+    enemy.isFixedRotation = true
+    enemy.x = x
+    enemy.y = y
+    function enemy:collision(e)
+        if (e.other.class == "Veiculo") then
+            inimigos = inimigos - 1
+            enemy:removeSelf()
+            enemy:removeEventListener("collision", enemy)
+            enemy = nil
+            tanks = tanks + 1
+            caught = true
+            change = true
+        end
+        return true
+    end
+    enemy:addEventListener("collision", enemy)
+    myGroup:insert(enemy)
+
+    local x1 = math.random(260, 350)
+    local y1 = math.random(-200, 0)
+    local speed1 = calcSpeed(x,y,x1,y1)
+    local hurtposx = veiculo.x
+    if (x1 < veiculo.x) then
+        hurtposx = veiculo.x - 30
+    else
+        hurtposx = veiculo.x + 30
+    end
+    local hurtposy = veiculo.y + math.random(-50,20)
+    transition.to(enemy,{time=speed1,x=x1,y=y1,onComplete=function()
+        transition.to(enemy,{time=speed,x=hurtposx,y=hurtposy,onComplete=function()
+            if(enemy~=nil and myGroup~=nil) then
+                enemy:removeEventListener("collision",enemy)
+                enemy:removeSelf()
+                inimigos = inimigos - 1
+                enemy = nil
+                caught = true
+                hurt = true
+            end
+        end})
+    end
+    })
+end
+
+local function putEnemy(event)
+    if (caught == true and stop~=true and inimigos == 0) then
+        wave = wave + 1
+        nums = nums+1
+        for i=1, nums do
+            xp = math.random(10,310)
+            yp = math.random(10,310)
+            newEnemy(xp,yp,calcSpeed(xp,yp,veiculo.x,veiculo.y))
+        end
+        caught = false
+    end
+end
 
 -- CRIANDO A CENA
 function cenai:create(event)
 
     local grupoCena = self.view
+    myGroup = display.newGroup()
+    inimigos = 0
+    tanks = 0
+    wave = 1
+    stop = false
+    caught = false
+    hurt = false
 
     -- first background
-    mapa1 = display.newImageRect("imgs/gamemap.png", 256, 2550)
+    mapa1 = display.newImageRect("imgs/gamemap2.png", 256, 10000)
     mapa1.x = _W*0.5; mapa1.y = _H/2; mapa1.xScale = 2.3;
     mapa1.isVisible = true
     -- mapa1.isVisible = true
@@ -67,34 +122,26 @@ function cenai:create(event)
     grupoCena:insert(mapa1)
 
     -- second background
-    mapa2 = display.newImageRect("imgs/gamemap.png", 256, 2550)
-    mapa2.x = _W*0.5; mapa2.y = mapa1.y + 2550; mapa2.xScale = 2.3;
+    mapa2 = display.newImageRect("imgs/gamemap2.png", 256, 10000)
+    mapa2.x = _W*0.5; mapa2.y = mapa1.y + 10000; mapa2.xScale = 2.3;
 
     grupoCena:insert(mapa2)
 
     -- third background
-    mapa3 = display.newImageRect("imgs/gamemap.png", 256, 2550)
-    mapa3.x = _W*0.5; mapa3.y = mapa2.y + 2550; mapa3.xScale = 2.3;
+    mapa3 = display.newImageRect("imgs/gamemap2.png", 256, 10000)
+    mapa3.x = _W*0.5; mapa3.y = mapa2.y + 10000; mapa3.xScale = 2.3;
 
     grupoCena:insert(mapa3)
 
-    -- Resume Botão
-    resume = display.newImageRect("imgs/resume.png", 60, 42)
-    resume.x = display.contentWidth/2 + 240
-    resume.y = 30
-    resume.myName="Resume"
-
-    grupoCena:insert(resume)
-
     -- Limites da via (onCollide)
-    limiteLateral1 = display.newRect(100, 160, 20, 320)
+    limiteLateral1 = display.newRect(100, 160, 20, 400)
     limiteLateral1.alpha = 0
     limiteLateral1.myName="limiteDireito"
     physics.addBody(limiteLateral1, "kinematic", {density=1, friction = .3})
 
     grupoCena:insert(limiteLateral1)
 
-    limiteLateral2 = display.newRect(400, 160, 20, 320)
+    limiteLateral2 = display.newRect(380, 160, 20, 400)
     limiteLateral2.alpha = 0
     limiteLateral2.myName="limiteEsquerdo"
     physics.addBody(limiteLateral2, "kinematic", {density=1, friction = .3})
@@ -103,45 +150,45 @@ function cenai:create(event)
 
     -- INIMIGOS
     tank1 = display.newImage("imgs/tank01.png")
-    tank1.x = math.random(150, 350); tank1.y = 2000
-    tank1:scale(0.3, 0.3)
-    tank1.speed = math.random(1,2)
-    tank1.myName = "tanklvl1"
+    tank1.x = math.random(150, 350); tank1.y = -400
+    tank1:scale(0.4, 0.4)
+    tank1.speed = 1
+    tank1.myName = "enemy"
     tank1.isVisible = true
-    tank1.rotation = -180
-    physics.addBody(tank1, "dynamic", {density = .1, radius = 40})
+    tank1.rotation = 360
+    physics.addBody(tank1, "dynamic", {density = .1, radius = 30})
 
     grupoCena:insert(tank1)
 
-    --tank2 = display.newImage("imgs/tank02.png")
-    --tank2.x = math.random(150, 350); tank1.y = 2000
-    --tank2:scale(0.4, 0.4)
-    --tank2.speed = math.random(1,2)
-    --tank2.myName = "tanklvl2"
-    --tank2.isVisible = true
-    --tank2.rotation = -180
-    --physics.addBody(tank2, "dynamic", {density = .1, radius = 40})
+    tank2 = display.newImage("imgs/tank02.png")
+    tank2.x = math.random(150, 200); tank2.y = -200
+    tank2:scale(0.4, 0.4)
+    tank2.speed = 1
+    tank2.myName = "enemy"
+    tank2.isVisible = true
+    tank2.rotation = 360
+    physics.addBody(tank2, "dynamic", {density = .1, radius = 30})
 
-    --grupoCena:insert(tank2)
+    grupoCena:insert(tank2)
 
-    --tank3 = display.newImage("imgs/tank03.png")
-    --tank3.x = math.random(150, 350); tank1.y = 2000
-    --tank3:scale(0.4, 0.4)
-    --tank3.speed = math.random(1,2)
-    --tank3.myName = "tanklvl3"
-    --tank3.isVisible = true
-    --tank3.rotation = -180
-    --physics.addBody(tank3, "dynamic", {density = .1, radius = 40})
+    tank3 = display.newImage("imgs/tank03.png")
+    tank3.x = math.random(250, 350); tank3.y = math.random(20, 45)
+    tank3:scale(0.4, 0.4)
+    tank3.speed = 1
+    tank3.myName = "enemy"
+    tank3.isVisible = true
+    tank3.rotation = 360
+    physics.addBody(tank3, "dynamic", {density = .1, radius = 30})
 
-    --grupoCena:insert(tank3)
+    grupoCena:insert(tank3)
 
     veiculo = display.newImageRect("imgs/Motocicleta.png", 40, 90 )
     veiculo.x = display.contentCenterX
-    veiculo.y = display.contentCenterY
+    veiculo.y = 280
     veiculo.isVisible = true
     veiculo.rotation = 0
     veiculo.myName = "Veiculo"
-    physics.addBody( veiculo, "dynamic", {radius = 30, bounce=0.3} )
+    physics.addBody( veiculo, "dynamic", {radius = 20, bounce=0.3} )
 
     grupoCena:insert(veiculo)
 
@@ -214,25 +261,62 @@ function cenai:create(event)
 
     grupoCena:insert(botao[4])
 
-    buttonFire = display.newImageRect("imgs/alvo.png", 81, 81)
-    buttonFire.x = 460; buttonFire.y = 250; buttonFire:scale(0.8, 0.8)
-    -- buttonFire:addEventListener( "tap", projetilFire)
-    grupoCena:insert(buttonFire)
+    scoreStatus = display.newImageRect("imgs/button_bc.png", 300, 90)
+    scoreStatus.x = 460
+    scoreStatus.y = 30
+    scoreStatus:scale(0.4, 0.4)
 
-    musicBack = audio.loadStream("sounds/Timecop1983 - On the Run.wav")
-    fireSong = audio.loadSound( "sounds/fire.wav" )
+    grupoCena:insert(scoreStatus)
+
+    scoreText = display.newText(Score, 460, 30, native.systemFont, 26 )
+    
+    grupoCena:insert(scoreText)
+
+    buttonAtirar = display.newImageRect("imgs/alvo.png", 81, 81)
+    buttonAtirar.x = 450; buttonAtirar.y = 280
+    
+    grupoCena:insert(buttonAtirar)
+
+    Runtime:addEventListener("enterFrame", putEnemy)
+    timer.performWithDelay(800, function()
+        newEnemy(160,260,4000)
+    end,1)
+
+    --musicBack = audio.loadStream("sounds/Timecop1983 - On the Run.wav")
+    explosionSound = audio.loadSound( "sounds/explosion.wav" )
+    fireSound = audio.loadSound( "sounds/fire.wav" )
+    audio.setVolume(1)
 end
 
 -- ======================================================================
 --                      FUNÇÕES DO GAME
 -- ======================================================================
-function inimigos(self, event)
-    if (self.isVisible == true) then
-        if (self.y < -100) then
-            self.x = math.random(150, 350); self.y = 2000
+
+local function inimigos1(self, event)
+    self.isVisible = true
+    if (tankDied == false and died == false) then
+        if (self.y > 400) then
+            self.x = math.random(250, 340); self.y = -200 --math.random(20, 45)
+            --tankDied = true
         else
-            self.y = self.y - self.speed
+            self.y = self.y + self.speed
         end
+    else
+        tankDied = false 
+    end
+end
+
+local function inimigos2(self, event)
+    self.isVisible = true
+    if (tankDied == false and died == false) then
+        if (self.y > 500) then
+            self.x = math.random(250, 270); self.y = -300 --math.random(20, 45)
+            --tankDied = true
+        else
+            self.y = self.y + self.speed
+        end
+    else
+        tankDied = false 
     end
 end
 
@@ -243,45 +327,27 @@ local function scroll(event)
         mapa2.y = mapa2.y + scrollSpeed
         mapa3.y = mapa3.y + scrollSpeed
 
-        if(mapa1.y + mapa1.contentWidth) > 2200 then
-            mapa1:translate(0, -5100)
+        if(mapa1.y + mapa1.contentWidth) > 9999 then
+            mapa1:translate(0, -20000)
         end
-        if(mapa2.y + mapa2.contentWidth) > 2200 then
-            mapa2:translate(0, -5100)
+        if(mapa2.y + mapa2.contentWidth) > 9999 then
+            mapa2:translate(0, -20000)
         end
-        if(mapa3.y + mapa3.contentWidth) > 2200 then
-            mapa3:translate(0, -5100)
+        if(mapa3.y + mapa3.contentWidth) > 9999 then
+            mapa3:translate(0, -20000)
         end
     end
 end
 
 function Contador_func()
     Score = Score + 1
+    scoreText.text = Score
 
-    if (Score == 10000) then
+    if (Score == 1000) then
         scrollSpeed = 3
-    elseif (Score == 30000) then
-        scrollSpeed = 4
+    elseif (Score == 20000) then
+        scrollSpeed = 5
     end
-end
-
--- fire button
-local function projetilFire()
-
-    audio.play( fireSong )
-
-    local newProjetil = display.newImageRect( "imgs/projetil.png", 12, 27) 
-    physics.addBody( newProjetil, "dynamic", { isSensor=true } )
-    newProjetil.isBullet = true
-    newProjetil.myName = "fire"
-
-    newProjetil.x = veiculo.x
-    newProjetil.y = veiculo.y
-    newProjetil:toBack()
-
-    transition.to( newProjetil, { y=-40, time=500,
-        onComplete = function() display.remove( newProjetil ) end 
-    } )
 end
 
 local function restoreVeiculo()
@@ -340,6 +406,24 @@ function update()
     end
 end
 
+function fireLaser()
+	-- Play fire sound!
+	audio.play( fireSound )
+
+	newLaser = display.newImageRect("imgs/projetil.png", 12, 27)
+	physics.addBody( newLaser, "dynamic", { isSensor=true } )
+	newLaser.isBullet = true
+	newLaser.myName = "laser"
+
+	newLaser.x = veiculo.x
+	newLaser.y = veiculo.y
+	newLaser:toBack()
+
+	transition.to( newLaser, { y=-40, time=500,
+		onComplete = function() display.remove( newLaser ) end
+	} )
+end
+
 function gameOver()
     composer.removeScene( "Resume" )
 	composer.gotoScene("Resume", { time=800, effect="crossFade" } ) 
@@ -348,16 +432,15 @@ end
 -- COLIDIU COM LATERAIS
 function onColision(event)
     if (event.phase == "began") then
-        if(event.object1.myName == "projetil" and event.object2.myName == "tanklvl1" 
-            or event.object1.myName == "tanklvl1" and event.object2.myName == "projetil") 
-        then
-            display.remove( projetil )
+        local obj1 = event.object1
+		local obj2 = event.object2
 
-            score = score + 100
-
-        elseif (event.object1.myName == "limiteEsquerdo" and event.object2.myName == "Veiculo" 
-            or event.object1.myName == "limiteDireito" and event.object2.myName == "Veiculo") 
+        if( ( obj1.myName == "Veiculo" and obj2.myName == "enemy") or 
+            ( obj1.myName == "enemy" and obj2.myName == "Veiculo") or
+            ( obj1.myName == "limiteEsquerdo" and obj2.myName == "Veiculo") or
+            ( obj1.myName == "limiteDireito" and obj2.myName == "Veiculo")  )
         then 
+            audio.play(explosionSound)
             if ( died == false) then
                 died = true
 
@@ -375,10 +458,12 @@ function onColision(event)
                 end
                 
                 if (lives == 0) then
-                    print("FUI CHAMADOOOOOOOOOOOOOOOOOOOOO")                    display.remove(veiculo) --veiculo:removeSelf()
+                    print("FUI CHAMADOOOOOOOOOOOOOOOOOOOOO")     
+                    display.remove(veiculo) --veiculo:removeSelf()
                     veiculo.isVisible = false
                     display.remove(tank1)
                     display.remove(veiculo)
+                    --Runtime:removeEventListener
                     
                     timer.performWithDelay( 2000, gameOver )
                 else
@@ -393,34 +478,34 @@ end
 function cenai:show(event)
 
     Runtime:addEventListener("touch", escutaButton)
-    buttonFire:addEventListener( "tap", projetilFire)
     Runtime:addEventListener("enterFrame", update)
+    buttonAtirar:addEventListener( "tap", fireLaser )
 
-
-
-    tank1.enterFrame = inimigos
+    tank1.enterFrame = inimigos2
     Runtime:addEventListener("enterFrame", tank1)
 
-    --tank2.enterFrame = inimigos
-    --Runtime:addEventListener("enterFrame", tank2)
+    tank2.enterFrame = inimigos1
+    Runtime:addEventListener("enterFrame", tank2)
 
-    --tank3.enterFrame = inimigos
-    --Runtime:addEventListener("enterFrame", --tank3)
+    tank3.enterFrame = inimigos2
+    Runtime:addEventListener("enterFrame", tank3)
 
     Runtime:addEventListener( "enterFrame", scroll )
 
     Runtime:addEventListener("enterFrame", Contador_func)
     Runtime:addEventListener("collision", onColision)
-    audio.play( musicBack, { channel=1, loops=-1 } )
+    --audio.play( musicBack, { channel=1, loops=-1 } )
 end
 
 function cenai:hide(event)
 
-    buttonFire:removeEventListener( "tap", projetilFire)
     Runtime:removeEventListener("enterFrame", update)
     Runtime:removeEventListener("enterFrame", Contador_func)
+    Runtime:removeEventListener( "tap", atirarAlvo )
+    Runtime:removeEventListener("enterFrame", putEnemy)
 
     Runtime:removeEventListener("collision", onColision)
+
   
 end
 
@@ -428,7 +513,7 @@ function cenai:destroy(event)
     local sceneGroup = self.view
 
     audio.dispose( fireSong )
-	audio.dispose( musicBack )
+	--audio.dispose( musicBack )
 end
 
 cenai:addEventListener("create",cenai)
