@@ -28,11 +28,15 @@ bloqueios inimigos ou quando for atingido por algum inimigo.
 ## 🕹 Como Executar
  ### Pré-Requisito
   * Instalar o Corona SDK e abrir o arquivo "main.lua"
- 
 
-## 🚧 Em construção v2.0 ... 🚧
+## :tv: Funcionanando
+Assista ao game funcionando, [clique aqui!](https://youtu.be/XMTqdgveVZY)
 
-### Features 2.0
+<h4 align="center">
+  🚧 Em construção v2.0 ... 🚧
+</h4>
+
+### Features v2.0
 - [x] Versão 1.0
 - [ ] Misseis
 - [ ] Inimigos Radomicos 
