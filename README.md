@@ -33,7 +33,7 @@ bloqueios inimigos ou quando for atingido por algum inimigo.
 ## 🚧 Em construção v2.0 ... 🚧
 
 ### Features 2.0
-
+- [x] Versão 1.0
 - [ ] Misseis
 - [ ] Inimigos Radomicos 
 - [ ] Upgrade de Veiculo
