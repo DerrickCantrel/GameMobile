@@ -25,6 +25,11 @@ bloqueios inimigos ou quando for atingido por algum inimigo.
  * Lua
  * CoronaSDK (Solar 2d)
 
+## 🕹 Como Executar
+ ### Pré-Requisito
+  * Instalar o Corona SDK e abrir o arquivo "main.lua"
+ 
+
 ## 🚧 Em construção v2.0 ... 🚧
 
 ### Features 2.0
