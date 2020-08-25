@@ -1,7 +1,7 @@
 <img width=1000px src="https://lh3.googleusercontent.com/dEpJNCq686tEwiguCqbHnwAeZdVz3i3XOjvtUN0ZUM-ZQLmUUlGxn3zIzUk8rIyHGee242xqvKrwiJF4yjH_7-vh_x_sE9mfFSunOy73915PDr4s_mn0iwzx8icDVOOsPBTouInlrdYsnYTtRNfKb3dKP_ssGK4tchf4yH5hQ6qLSk07TbH1eQ-E7ePue5ZvtLnXO0dGCCUD0MwysTGFZNpdnNO8w4Cgxi7f3SiNu4Y-6nS_uHHxUJvdLn-sUKnFCD1cGy27WmkdcwlFAXkOdZqV1FXBNt3XmmR7RJyYlretscKngv9QVj3MpexXgo60pCnSwYRGWAJWsaSmMGV3yOzbU_OsdYD4Ew-PipnLGWnbedUoGVi2Mu7TslWkoANOkqGHwx9IBVpqLLTD9mQzGxgX5adnIsBPzlYP-KDcVBhlQajsgIucJ8Kf_07DUGGwrTxWxjKKWo97hwyeYA-e0ze_gAr5aLKK6uGW342HMMLTFa_918Ba9sVeQDLZw7JRM4Aiqeip0zWqtnU2f2hkyYiMPk2ahAmeUkxqXSwKUZh-fFJjffzwYtoYZ8f7CQ7-B-GriKVegNGl49Vmb8F3tEOgH_imxEvKHMk3tDqgi_hZ3yry_pTi2kZm5p0p0MPmWWMVKVJArnLyDln1kqmkTmQpXCTlNStpxSHaZ1JaM2O-if4BBMvl42RW=w705-h166-no?authuser=0">
 
 # :video_game: Sobre o Game
-O Secret Command Racing se inicia em uma estrada pavimentada, o governo lhe confiou a importante missão de se infiltrar em uma área inimiga. Sua arma secreta é um veículo capaz de se aprimorar com a ajuda de um caminhão do governo, que irá dá reforços secretamente a você. 
+O Secret Command Racing se inicia em uma estrada pavimentada, o governo lhe confiou a importante missão de se infiltrar em uma área inimiga. Sua arma secreta é um veículo capaz de se aprimorar com a ajuda de um caminhão do governo, que irá dá reforços secretamente a você. O jogo foi baseado em outro game de 1986 licenciado pela Sega ltd. O Professor que orientou esse trabalho foi o Profº Vitor Almeida dos Santos
  
 ## :dart: Objetivos 
 Destruir os veículos identificados com a bandeira inimiga, evitando colidir com os 
